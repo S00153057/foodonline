@@ -4,6 +4,7 @@ var mongodb = require("mongodb");
 var ObjectID = mongodb.ObjectID;
 
 var CONTACTS_COLLECTION = "contacts";
+var MENU_COLLECTION = "menu";
 
 var app = express();
 app.use(bodyParser.json());
@@ -16,7 +17,7 @@ app.use(express.static(distDir));
 var db;
 
 // Connect to the database before starting the application server.
-mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
+mongodb.MongoClient.connect("mongodb://arturs_admin:admin123@ds161960.mlab.com:61960/heroku_qxvfwq75", function (err, database) {
   if (err) {
     console.log(err);
     process.exit(1);
@@ -73,6 +74,39 @@ app.post("/api/contacts", function(req, res) {
   });
 });
 
+/*
+  "/api/menu"
+  GET: Find all menu items
+  POST: create new menu items
+*/
+
+app.get("/api/menu", function(req, res) {
+  db.collection(MENU_COLLECTION).find({}).toArray(function(err, docs) {
+    if (err) {
+      handleError(res, err.message, "Failed to get contacts.");
+    } else {
+      res.status(200).json(docs);
+    }
+  });
+});
+
+app.post("/api/menu", function(req, res) {
+  var newMenu = req.body;
+  newMenu.createDate = new Date();
+
+  if (!req.body.name) {
+    handleError(res, "Invalid user input", "Must provide a name.", 400);
+  }
+
+  db.collection(MENU_COLLECTION).insertOne(newMenu, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to create new contact.");
+    } else {
+      res.status(201).json(doc.ops[0]);
+    }
+  });
+});
+
 /*  "/api/contacts/:id"
  *    GET: find contact by id
  *    PUT: update contact by id
@@ -104,6 +138,46 @@ app.put("/api/contacts/:id", function(req, res) {
 });
 
 app.delete("/api/contacts/:id", function(req, res) {
+  db.collection(CONTACTS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
+    if (err) {
+      handleError(res, err.message, "Failed to delete contact");
+    } else {
+      res.status(200).json(req.params.id);
+    }
+  });
+});
+
+/*
+ *    GET: find menu by id
+ *    PUT: update menu by id
+ *    DELETE: deletes menu by id
+*/
+
+app.get("/api/menu/:id", function(req, res) {
+  db.collection(MENU_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to get contact");
+    } else {
+      res.status(200).json(doc);
+    }
+  });
+});
+
+app.put("/api/menu/:id", function(req, res) {
+  var updateDoc = req.body;
+  delete updateDoc._id;
+
+  db.collection(MENU_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
+    if (err) {
+      handleError(res, err.message, "Failed to update contact");
+    } else {
+      updateDoc._id = req.params.id;
+      res.status(200).json(updateDoc);
+    }
+  });
+});
+
+app.delete("/api/menu/:id", function(req, res) {
   db.collection(CONTACTS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
     if (err) {
       handleError(res, err.message, "Failed to delete contact");

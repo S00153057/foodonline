@@ -1,0 +1,34 @@
+<div *ngIf="menu" class="row">
+  <div class="col-md-12">
+    <h2 *ngIf="menu._id">menu Details</h2>
+    <h2 *ngIf="!menu._id">New menu</h2>
+  </div>
+</div>
+<div *ngIf="menu" class="row">
+  <form class="col-md-12">
+    <div class="form-group">
+      <label for="menu-name">Name</label>
+      <input class="form-control" name="menu-name" [(ngModel)]="menu.name" placeholder="Menu Plate" />
+    </div>
+    <div class="form-group">
+      <label for="menu-description">Description</label>
+      <input class="form-control" name="menu-description" [(ngModel)]="menu.description" placeholder="This is a cool bit of food..."
+      />
+    </div>
+    <div class="form-group">
+      <label for="menu-calories">Calories</label>
+      <input class="form-control" name="menu-calories" [(ngModel)]="menu.calories" placeholder="9001/cal" />
+    </div>
+    <div class="form-group">
+      <label for="menu-price-eu">EU Price</label>
+      <input class="form-control" name="menu-price-eu" [(ngModel)]="menu.price.eu" placeholder="0123456789" />
+    </div>
+    <div class="form-group">
+      <label for="menu-price-uk">UK Price</label>
+      <input class="form-control" name="menu-price-uk" [(ngModel)]="menu.price.uk" placeholder="0123456789" />
+    </div>
+    <button class="btn btn-primary" *ngIf="!menu._id" (click)="createMenu(menu)">Create</button>
+    <button class="btn btn-info" *ngIf="menu._id" (click)="updateMenu(menu)">Update</button>
+    <button class="btn btn-danger" *ngIf="menu._id" (click)="deleteMenu(menu._id)">Delete</button>
+  </form>
+</div>
